@@ -6,6 +6,7 @@ import sys
 import threading
 import time
 import random
+from typing import List
 
 # #######################
 # Classes
@@ -22,20 +23,25 @@ class Encomenda:
   def display_info(self):
     print(f'{self.id:<10} | {(str(self.origem)+'/'+str(self.destino)):<5} | {('Sim' if self.entregue else 'Não'):<8}')
 
+# Status: esperando | descarregando | em_transito
 class Veiculo:
-  def __init__(self, id, espacos, status = 'parado'):
+  def __init__(self, id, espacos, ponto, status = 'esperando'):
     self.id = id
     self.espacos = espacos
     self.status = status
-    self.ponto = None
+    self.ponto = ponto
     self.encomendas = []
 
   def display_info(self):
-    print(f'{self.id:<7} | {self.status:<15} | {('' if self.ponto is None else self.ponto):<5} | {(str(len(self.encomendas))+'/'+self.espacos):<7}')
+    print(f'{self.id:<7} | {self.status:<15} | {self.ponto:<5} | {(str(len(self.encomendas))+'/'+self.espacos):<7}')
 
 class Ponto:
-  def __init__(self, id):
+  def __init__(self, id, aguardando_despacho: List[int]):
     self.id = id
+    self.aguardando_despacho = aguardando_despacho
+
+  def display_info(self):
+    print(f'{self.id:<5} | {', '.join(str(num) for num in self.aguardando_despacho):<15}')
 
 # #######################
 # Globais
@@ -45,11 +51,11 @@ t_0 = time.time()
 mutex = threading.Lock()
 
 threads_encomendas = []
-encomendas = []
+encomendas: List[Encomenda] = []
 threads_veiculos = []
-veiculos = []
+veiculos: List[Veiculo]  = []
 threads_pontos = []
-pontos = []
+pontos: List[Ponto] = []
 
 # #######################
 # Monitor
@@ -74,6 +80,13 @@ def thread_monitor():
     for encomenda in encomendas:
       encomenda.display_info()
 
+    print()
+
+    print(f'{'Ponto':<5} | {'Aguardando Desp.':<15}')
+    print('---------------------------------------------------------------------')
+    for ponto in pontos:
+      ponto.display_info()
+
     print("\nPressione Ctrl+C para sair.")
     
     # Esperar por um segundo antes de atualizar novamente
@@ -83,15 +96,11 @@ def thread_monitor():
 # Lógica
 # #######################
 
-def thread_veiculo(id, espacos):
-  veiculo = Veiculo(id, espacos)
+def thread_veiculo(id, espacos, ponto):
+  veiculo = Veiculo(id, espacos, ponto)
   veiculos.append(veiculo)
 
   while True:
-    if veiculo.status == 'parado':
-      veiculo.status = 'em_transito'
-    else:
-      veiculo.status = 'parado'
     time.sleep(random.uniform(0, 10))
 
 def thread_encomenda(id, origem, destino):
@@ -102,6 +111,13 @@ def thread_encomenda(id, origem, destino):
     encomenda.entregue = True
   
   while not encomenda.entregue:
+    time.sleep(1)
+
+def thread_ponto(id, aguardando_despacho):
+  ponto = Ponto(id, aguardando_despacho)
+  pontos.append(ponto)
+  
+  while len(ponto.aguardando_despacho) > 0:
     time.sleep(1)
 
 if __name__ == '__main__':
@@ -123,10 +139,19 @@ if __name__ == '__main__':
 
   # Criação dos veículos
   for i in range(0, int(C)):
-    thread = threading.Thread(target=thread_veiculo,args=(i, A))
+    ponto_inicial = random.randint(0, int(S))
+    thread = threading.Thread(target=thread_veiculo,args=(i, A, ponto_inicial))
     thread.daemon = True
     thread.start()
     threads_veiculos.append(thread)
+
+  # Criação dos pontos
+  for i in range(0, int(S)):
+    aguardando_despacho = [ encomenda.id for encomenda in encomendas if encomenda.origem == i]
+    thread = threading.Thread(target=thread_ponto,args=(i, aguardando_despacho))
+    thread.daemon = True
+    thread.start()
+    threads_pontos.append(thread)
 
   monitor = threading.Thread(target=thread_monitor)
   monitor.daemon = True
