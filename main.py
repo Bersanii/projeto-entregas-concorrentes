@@ -31,6 +31,7 @@ class Veiculo:
     self.status = status
     self.ponto = ponto
     self.encomendas = []
+    self.tempo_viagem_atual = 0
 
   def display_info(self):
     print(f'{self.id:<7} | {self.status:<15} | {self.ponto:<5} | {(str(len(self.encomendas))+'/'+self.espacos):<7}')
@@ -39,6 +40,8 @@ class Ponto:
   def __init__(self, id, aguardando_despacho: List[int]):
     self.id = id
     self.aguardando_despacho = aguardando_despacho
+    self.veiculos_aguardando = []
+    self.ocupado = False
 
   def display_info(self):
     print(f'{self.id:<5} | {', '.join(str(num) for num in self.aguardando_despacho):<15}')
@@ -137,14 +140,6 @@ if __name__ == '__main__':
     thread.start()
     threads_encomendas.append(thread)
 
-  # Criação dos veículos
-  for i in range(0, int(C)):
-    ponto_inicial = random.randint(0, int(S))
-    thread = threading.Thread(target=thread_veiculo,args=(i, A, ponto_inicial))
-    thread.daemon = True
-    thread.start()
-    threads_veiculos.append(thread)
-
   # Criação dos pontos
   for i in range(0, int(S)):
     aguardando_despacho = [ encomenda.id for encomenda in encomendas if encomenda.origem == i]
@@ -152,6 +147,14 @@ if __name__ == '__main__':
     thread.daemon = True
     thread.start()
     threads_pontos.append(thread)
+
+  # Criação dos veículos
+  for i in range(0, int(C)):
+    ponto_inicial = random.randint(0, int(S))
+    thread = threading.Thread(target=thread_veiculo,args=(i, A, ponto_inicial))
+    thread.daemon = True
+    thread.start()
+    threads_veiculos.append(thread)
 
   monitor = threading.Thread(target=thread_monitor)
   monitor.daemon = True
