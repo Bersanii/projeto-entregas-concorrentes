@@ -11,13 +11,13 @@ Este projeto tem como objetivo a implementação de uma aplicação concorrente 
 
 ## Requisitos
 
-- Python 3.x
-- Módulos Python:
-  - `threading`
-  - `time`
-  - `random`
-  - `os`
-  - `sys`
+- Python 3 (ou superior)
+- Importações Python:
+  - threading
+  - time
+  - random
+  - os
+  - sys
 
 ## Funcionalidades
 
@@ -123,8 +123,3 @@ O programa utiliza múltiplas threads para simular a movimentação simultânea 
 
 - **Tela de Monitoramento**: Exibe informações sobre os veículos, encomendas e pontos de redistribuição.
 - **Arquivos de Rastro**: Para cada encomenda, é gerado um arquivo de rastro contendo o histórico de sua movimentação, incluindo os horários de chegada ao ponto de origem, carga no veículo e descarga no ponto de destino.
-
-## Observações
-
-- O sistema é projetado para simular uma rede de entregas com múltiplos veículos e encomendas, com tempos de viagem aleatórios e carga limitada por veículo.
-- A sincronização é feita usando semáforos e variáveis de trava para evitar conflitos e garantir que apenas um veículo seja atendido por vez em cada ponto de redistribuição.
