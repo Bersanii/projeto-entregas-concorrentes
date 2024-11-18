@@ -3,11 +3,14 @@
 Integrantes:
 - Vitor Bersani Balan
 - Juliano dos Reis Cruz
-- André Augusto Costa Dionisio
+- André Augusto Costa Dionísio
 
 ## Descrição do Projeto
 
-Este projeto tem como objetivo a implementação de uma aplicação concorrente que simula uma rede de entregas, onde veículos transportam encomendas entre pontos de redistribuição. A sincronização entre os componentes do sistema é feita utilizando semáforos e variáveis de trava, com o uso de threads para representar os veículos, encomendas e pontos de redistribuição. O programa possui uma interface de monitoramento em tempo real e gera arquivos de rastro para cada encomenda entregue.
+- Este projeto tem como objetivo a implementação de uma aplicação concorrente que simula uma rede de entregas, em que encomendas são transportadas por veículos de um ponto de
+redistribuição até outro. 
+- A sincronização é feita com uso de semáforos e variáveis de trava com o uso de threads para representar os veículos, encomendas e pontos de redistribuição. 
+- O programa exibe monitoramento em tempo real e gera arquivos de rastro no disco para cada emcomenda entregue.
 
 ## Requisitos
 
@@ -64,7 +67,7 @@ Este comando irá iniciar a simulação com:
 Representa uma encomenda a ser transportada entre os pontos de redistribuição.
 
 - **Atributos**:
-  - `id`: Identificador da encomenda.
+  - `id`: ID da encomenda.
   - `origem`: Ponto de origem da encomenda.
   - `destino`: Ponto de destino da encomenda.
   - `entregue`: Status da encomenda, indicando se foi entregue.
@@ -78,7 +81,7 @@ Representa uma encomenda a ser transportada entre os pontos de redistribuição.
 Representa um veículo responsável pelo transporte das encomendas.
 
 - **Atributos**:
-  - `id`: Identificador do veículo.
+  - `id`: ID do veículo.
   - `espacos`: Quantidade de espaços de carga disponíveis no veículo.
   - `status`: Status atual do veículo (exemplo: "esperando", "em_transito").
   - `ponto`: Ponto de redistribuição atual do veículo.
@@ -93,7 +96,7 @@ Representa um veículo responsável pelo transporte das encomendas.
 Representa um ponto de redistribuição onde as encomendas são armazenadas antes de serem carregadas pelos veículos.
 
 - **Atributos**:
-  - `id`: Identificador do ponto.
+  - `id`: ID do ponto.
   - `aguardando_despacho`: Lista de encomendas aguardando para serem carregadas no veículo.
   - `veiculos_aguardando`: Lista de veículos aguardando para carregar encomendas.
   - `ocupado`: Status que indica se o ponto está ocupado por um veículo ou não.
