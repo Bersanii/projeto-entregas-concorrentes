@@ -1,5 +1,10 @@
 # Simulação de Rede de Entregas - Projeto de Sistemas Operacionais
 
+Integrantes:
+- Vitor Bersani Balan
+- Juliano dos Reis Cruz
+- André Augusto Costa Dionisio
+
 ## Descrição do Projeto
 
 Este projeto tem como objetivo a implementação de uma aplicação concorrente que simula uma rede de entregas, onde veículos transportam encomendas entre pontos de redistribuição. A sincronização entre os componentes do sistema é feita utilizando semáforos e variáveis de trava, com o uso de threads para representar os veículos, encomendas e pontos de redistribuição. O programa possui uma interface de monitoramento em tempo real e gera arquivos de rastro para cada encomenda entregue.
@@ -38,12 +43,10 @@ Onde:
 - `P` é o número de encomendas (P ≥ 1)
 - `A` é a quantidade de espaços de carga por veículo (A ≥ 1)
 
-Esses valores determinam o comportamento da simulação, controlando a quantidade de pontos, veículos, encomendas e o número de espaços de carga disponíveis para cada veículo.
-
+### Exemplo de Execução:
 ```bash
 python simulacao.py 5 3 10 2
 ```
-## Exemplo de Execução
 
 Este comando irá iniciar a simulação com:
 
@@ -51,9 +54,6 @@ Este comando irá iniciar a simulação com:
 - 3 veículos
 - 10 encomendas
 - Cada veículo terá 2 espaços de carga
-
-### Exemplo de Execução:
-
 
 ## Estrutura do Código
 
