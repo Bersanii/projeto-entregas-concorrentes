@@ -133,9 +133,6 @@ def thread_veiculo(id, espacos, ponto):
           encomendas[encomenda.id].entregue = True
           encomenda.id_veiculo = veiculo.id
           veiculo.encomendas.remove(encomenda)
-       
-       # Essa parte nao quebrou o codigo
-       #-------------------------------------------------------------------------------------
 
       # verifico se existem encomendas nesse ponto que precisam ser despachadas para outro e se tem espaco no veiculo
       
@@ -149,14 +146,7 @@ def thread_veiculo(id, espacos, ponto):
           time.sleep(float(encomenda.tempo_descarga))
           encomenda.horarios["carregamento"] = time.time()
           veiculo.encomendas.append(encomenda)
-          
-          
-      # Essa parte nao quebrou o codigo
-      # -------------------------------------------------------------------------------------  
-
-
-
-          
+              
 
 
     ponto_atual.ocupado.release()      
