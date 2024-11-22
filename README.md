@@ -133,3 +133,10 @@ O programa utiliza múltiplas threads para simular a movimentação simultânea 
 
 - **Tela de Monitoramento**: Exibe informações sobre os veículos, encomendas e pontos de redistribuição.
 - **Arquivos de Rastro**: Para cada encomenda, é gerado um arquivo de rastro contendo o histórico de sua movimentação, incluindo os horários de chegada ao ponto de origem, carga no veículo e descarga no ponto de destino.
+
+## Detalhes a serem implementados
+- **Inconsistência na carga do veículo**: Sempre ao final da execução, um dos veículos apresenta ao final da execução, constanto como se a encomenda ainda estivesse no véiculo, mesmo tendo sido despachada
+- **Fila de veículos no ponto de distribuição**: As encomendas, ao chegarem a um ponto de redistribuição, ficam organizadas em uma fila controlada pelo ponto de redistribuição
+- **Ultrapassagem de veículos**: Um veículo pode ultrapassar outro veículo durante a viagem e chegar antes ao próximo ponto de redistribuição. Não fica claro a princípio como isso deveria ser feito, precisa ser verificado
+
+
