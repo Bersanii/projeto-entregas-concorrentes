@@ -140,7 +140,6 @@ def thread_veiculo(id, espacos, ponto):
 
       # verifico se existem encomendas nesse ponto que precisam ser despachadas para outro e se tem espaco no veiculo
       
-      
       if len(ponto_atual.aguardando_despacho) > 0:
 
         if(len(veiculo.encomendas) < veiculo.espacos):
