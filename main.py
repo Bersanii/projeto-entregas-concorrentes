@@ -44,9 +44,9 @@ class Ponto:
   def __init__(self, id, aguardando_despacho: List[int]):
     self.id = id
     self.aguardando_despacho = aguardando_despacho
-    self.veiculos_aguardando = [] # nao sendo usado, precisa ser implementado
+    self.veiculos_aguardando = [] 
     self.ocupado = threading.Semaphore(1)
-    self.lock_fila = threading.Lock()
+    self.lock_ponto = threading.Lock()
 
   def display_info(self):
     print(f'{self.id:<5} | {', '.join(str(num) for num in self.aguardando_despacho):<15}')
@@ -114,13 +114,14 @@ def thread_veiculo(id, espacos, ponto):
 
   while entregas_restantes > 0 and programa_ativo:
 
-    ponto_atual = pontos[veiculo.ponto - 1]
+    ponto_atual = pontos[veiculo.ponto - 1] # veiculo chegou no ponto
 
-    # tentativa de entrar no ponto em que o veiculo se encontra
-    ponto_atual.ocupado.acquire()
+    
+    ponto_atual.veiculos_aguardando.append(veiculo.id) # veiculo adicionado na fila do ponto
+    ponto_atual.ocupado.acquire() # veiculo esta na frente do ponto
     
 
-    with ponto_atual.lock_fila:
+    with ponto_atual.lock_ponto: # Se nao tiver ninguem la dentro do ponto, veiculo entra e faz o que precisa
       
       for encomenda in veiculo.encomendas:
 
@@ -133,6 +134,9 @@ def thread_veiculo(id, espacos, ponto):
           encomendas[encomenda.id].entregue = True
           encomenda.id_veiculo = veiculo.id
           veiculo.encomendas.remove(encomenda)
+       
+       # Essa parte nao quebrou o codigo
+       #-------------------------------------------------------------------------------------
 
       # verifico se existem encomendas nesse ponto que precisam ser despachadas para outro e se tem espaco no veiculo
       
@@ -143,19 +147,31 @@ def thread_veiculo(id, espacos, ponto):
           
           veiculo.status = "carregando"
           encomenda = encomendas[ponto_atual.aguardando_despacho.pop()]
+
+          #if(encomenda.entregue != True):
           time.sleep(float(encomenda.tempo_descarga))
           encomenda.horarios["carregamento"] = time.time()
           veiculo.encomendas.append(encomenda)
-              
+         
+      # Essa parte nao quebrou o codigo
+      # -------------------------------------------------------------------------------------  
+ 
+  
 
 
-    ponto_atual.ocupado.release()      
+          
+
+    ponto_atual.veiculos_aguardando.remove(veiculo.id) # veiculo ja entrou e saiu do ponto, portanto pode ser retirado da lista
+    ponto_atual.ocupado.release() # veiculo ja nao esta mais no ponto      
 
     # Apos o veiculo fazer o que precisava ser feito no ponto, ele se movimenta em direcao ao proximo
     veiculo.status = "em_transito"
     veiculo.ponto = (veiculo.ponto + 1) % len(pontos)
 
     time.sleep(random.uniform(0, 10))
+    
+  veiculo.status = "Parado"
+ 
 
 def thread_encomenda(id, origem, destino):
   
@@ -203,19 +219,20 @@ def thread_ponto(id, aguardando_despacho):
 
 if __name__ == '__main__':
   
-  if len(sys.argv) < 5:
+  if len(sys.argv) > 5:
     print('erro')
     sys.exit(1)
   S, C, P, A = map(int, sys.argv[1:])
+  #S,C,P,A = 5,3,30,10
 
-  if not (P > A > C):
+  if not (P >= 3*A >= 3*C):
         print('Erro: Os valores devem satisfazer a relação P >> A >> C.')
         print(f'Valores fornecidos: P={P}, A={A}, C={C}')
         print('Certifique-se de que o número de encomendas (P) seja maior que a capacidade de carga (A),')
         print('e que a capacidade de carga (A) seja maior que o número de veículos (C).')
         sys.exit(1)
 
-  entregas_restantes = 10
+  entregas_restantes = P
 
   # Criação das encomendas
   for i in range(0, int(P)):
@@ -228,7 +245,7 @@ if __name__ == '__main__':
 
   # Criação dos pontos
   for i in range(0, int(S)):
-    aguardando_despacho = [ encomenda.id for encomenda in encomendas if encomenda.origem == i]
+    aguardando_despacho = [ encomenda.id for encomenda in encomendas if encomenda.origem == i and encomenda.entregue != True]
     thread = threading.Thread(target=thread_ponto,args=(i, aguardando_despacho))
     thread.daemon = True
     thread.start()
@@ -236,7 +253,7 @@ if __name__ == '__main__':
 
   # Criação dos veículos
   for i in range(0, int(C)):
-    ponto_inicial = random.randint(0, int(S))
+    ponto_inicial = random.randint(0, int(S) - 1)
     thread = threading.Thread(target=thread_veiculo,args=(i, A, ponto_inicial))
     thread.daemon = True
     thread.start()
