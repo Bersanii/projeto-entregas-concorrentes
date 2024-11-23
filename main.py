@@ -8,6 +8,7 @@ import threading
 import time
 import random
 from typing import List
+import queue
 
 # #######################
 # Classes
@@ -69,6 +70,10 @@ entregas_restantes = 0
 
 programa_ativo = True
 
+transito_lock = threading.Lock()
+
+veiculos_em_transito = queue.PriorityQueue()
+
 # #######################
 # Monitor
 # #######################
@@ -107,6 +112,28 @@ def thread_monitor():
 # #######################
 # Lógica
 # #######################
+
+def gerenciar_transito(veiculo, tempo_viagem):
+  
+  # Adiciona o veiculo na fila de transito com um tempo associado
+  # remove da fila apos o tempo da viagem
+  with transito_lock:
+    chegada_prevista = time.time() + tempo_viagem
+    veiculos_em_transito.put((chegada_prevista, veiculo.id))
+
+
+  # Simula o tempo da viagem
+  time.sleep(tempo_viagem)
+
+
+  # Remove da fila de transito
+  with transito_lock:
+    try:
+      veiculos_em_transito.queue = [item for item in veiculos_em_transito.queue if item[1] != veiculo.id]
+    except ValueError:
+      pass # caso o veiculo ja tenha sido removido
+
+
 
 def thread_veiculo(id, espacos, ponto):
   veiculo = Veiculo(id, espacos, ponto)
@@ -165,6 +192,7 @@ def thread_veiculo(id, espacos, ponto):
 
     # Apos o veiculo fazer o que precisava ser feito no ponto, ele se movimenta em direcao ao proximo
     veiculo.status = "em_transito"
+    gerenciar_transito(veiculo, veiculo.tempo_viagem_atual)
     veiculo.ponto = (veiculo.ponto + 1) % len(pontos)
 
     time.sleep(random.uniform(0, 10))
