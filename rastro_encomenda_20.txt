@@ -1,5 +1,0 @@
-Encomenda 20
-Origem: 1, Destino: 1
-Chegada na origem: 1732456533.1082602
-Carregada no veiculo None as None
-Descarregada as None

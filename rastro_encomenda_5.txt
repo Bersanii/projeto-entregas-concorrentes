@@ -1,5 +1,0 @@
-Encomenda 5
-Origem: 1, Destino: 3
-Chegada na origem: 1732456533.1069467
-Carregada no veiculo 0 as 1732456606.1109989
-Descarregada as 1732456642.1121662
