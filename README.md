@@ -21,6 +21,7 @@ redistribuição até outro.
   - random
   - os
   - sys
+  - queue
 
 ## Funcionalidades
 
@@ -46,21 +47,21 @@ Onde:
 - `P` é o número de encomendas (P ≥ 1)
 - `A` é a quantidade de espaços de carga por veículo (A ≥ 1)
 
-Importante salientar a implementacao da condicao P > A > C, que implica que 
-o número de encomendas precisa ser maior que o número de espaços de carga por veículo
-e o número de espaços por carga precisa ser maior que o número de veículos
+Importante salientar a implementacao da condicao P >> A >> C, que implica que 
+o número de encomendas precisa ser ligeiramente maior que o número de espaços de carga por veículo
+e o número de espaços por carga precisa ser ligeiramente maior que o número de veículos
 
 ### Exemplo de Execução:
 ```bash
-python simulacao.py 5 3 10 4
+python simulacao.py 5 3 30 10
 ```
 
 Este comando irá iniciar a simulação com:
 
 - 5 pontos de redistribuição
 - 3 veículos
-- 10 encomendas
-- Cada veículo terá 4 espaços de carga
+- 30 encomendas
+- Cada veículo terá 10 espaços de carga
 
 ## Estrutura do Código
 
@@ -106,7 +107,7 @@ Representa um ponto de redistribuição onde as encomendas são armazenadas ante
   - `aguardando_despacho`: Lista de encomendas aguardando para serem carregadas no veículo.
   - `veiculos_aguardando`: Lista de veículos aguardando para carregar encomendas.
   - `ocupado`: Status que indica se o ponto está ocupado por um veículo ou não.
-  - `lock_fila`: Trava para garantir um único veículo acessando a thread do ponto
+  - `lock_ponto`: Trava para garantir um único veículo acessando a thread do ponto
 
 - **Métodos**:
   - `display_info`: Exibe as informações sobre o ponto de redistribuição, respectivamente id e encomendas aguardando despacho
@@ -124,8 +125,9 @@ O programa utiliza múltiplas threads para simular a movimentação simultânea 
 
 1. O programa cria as threads para as encomendas, pontos de redistribuição e veículos
 2. As encomendas são criadas com origem e destino aleatórios.
-3. Os veículos começam a circular entre os pontos de redistribuição, carregando e descarregando as encomendas.
-4. As encomendas são entregues ao longo do tempo, e o status de cada uma é atualizado.
+3. Os pontos são criados com a listas de encomendas de cada um que precisam ser despachadas
+3. Os veículos sao criados com o ponto inicial deles e começam a circular entre os pontos de redistribuição, carregando e descarregando as encomendas.
+4. A medida que os veiculos vao despachando as encomendas, o status das mesmas sao mudados para entregue.
 5. O monitoramento em tempo real exibe a situação atual do sistema a cada segundo.
 6. Quando todas as encomendas forem entregues, os veículos param e o programa finaliza.
 
@@ -133,10 +135,5 @@ O programa utiliza múltiplas threads para simular a movimentação simultânea 
 
 - **Tela de Monitoramento**: Exibe informações sobre os veículos, encomendas e pontos de redistribuição.
 - **Arquivos de Rastro**: Para cada encomenda, é gerado um arquivo de rastro contendo o histórico de sua movimentação, incluindo os horários de chegada ao ponto de origem, carga no veículo e descarga no ponto de destino.
-
-## Detalhes a serem implementados
-- **Inconsistência na carga do veículo**: Sempre ao final da execução, um dos veículos apresenta ao final da execução, constanto como se a encomenda ainda estivesse no véiculo, mesmo tendo sido despachada
-- **Fila de veículos no ponto de distribuição**: As encomendas, ao chegarem a um ponto de redistribuição, ficam organizadas em uma fila controlada pelo ponto de redistribuição
-- **Ultrapassagem de veículos**: Um veículo pode ultrapassar outro veículo durante a viagem e chegar antes ao próximo ponto de redistribuição. Não fica claro a princípio como isso deveria ser feito, precisa ser verificado
 
 

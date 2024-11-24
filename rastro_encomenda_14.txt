@@ -1,0 +1,5 @@
+Encomenda 14
+Origem: 4, Destino: 4
+Chegada na origem: 1732456533.1077263
+Carregada no veiculo None as None
+Descarregada as None

@@ -1,0 +1,5 @@
+Encomenda 26
+Origem: 1, Destino: 2
+Chegada na origem: 1732456533.1087933
+Carregada no veiculo 2 as 1732456539.1097646
+Descarregada as 1732456545.1099236
