@@ -145,7 +145,7 @@ O programa utiliza múltiplas threads para simular a movimentação simultânea 
 
 ## Erros Comuns
 
-- **Argumentos Inválidos**: Caso os argumentos `P`, `A` e `C` não satisfaçam `P >> A >> C`, o programa exibirá um erro e será encerrado. 
+**Argumentos Inválidos**: Caso os argumentos `P`, `A` e `C` não satisfaçam `P >> A >> C`, o programa exibirá um erro e será encerrado. 
 - Número de encomendas (P) precisa maior que a capacidade de carga (A)
 - Capacidade de carga (A) precisa maior que o número de veículos (C).
 
