@@ -22,6 +22,7 @@ redistribuição até outro.
   - os
   - sys
   - queue
+  - datetime
 
 ## Funcionalidades
 
@@ -37,7 +38,7 @@ redistribuição até outro.
 O programa recebe os seguintes argumentos na linha de comando ao ser executado:
 
 ```bash
-python simulacao.py S C P A
+python main.py S C P A
 ```
 
 Onde:

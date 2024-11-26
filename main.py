@@ -9,6 +9,7 @@ import time
 import random
 from typing import List
 import queue
+from datetime import datetime
 
 # #######################
 # Classes
@@ -38,7 +39,7 @@ class Veiculo:
     self.tempo_viagem_atual = 0
 
   def display_info(self):
-    print(f'{self.id:<7} | {self.status:<15} | {self.ponto:<5} | {(str(len(self.encomendas))+'/'+str(self.espacos)):<7}')
+    print(f'{self.id:<7} | {self.status:<15} | {self.ponto:<5} | {(str(len(self.encomendas))+'/'+str(self.espacos)):<7} {', '.join(str(encomenda.id) for encomenda in self.encomendas)}')
 
 
 class Ponto:
@@ -55,7 +56,6 @@ class Ponto:
 # #######################
 # Globais
 # #######################
-
 
 mutex = threading.Lock()
 threads_encomendas = []
@@ -210,11 +210,15 @@ def thread_encomenda(id, origem, destino):
     entregas_restantes -=1
 
   with open(f"rastro_encomenda_{id}.txt", "w") as f:
+    horario_chegada = datetime.fromtimestamp(encomenda.horarios['chegada_origem']).strftime('%d/%m/%Y %H:%M:%S') if encomenda.horarios['chegada_origem'] else None 
+    horario_carregamento = datetime.fromtimestamp(encomenda.horarios['carregamento']).strftime('%d/%m/%Y %H:%M:%S') if encomenda.horarios['carregamento'] else None 
+    horario_descarregamento = datetime.fromtimestamp(encomenda.horarios['descarregamento']).strftime('%d/%m/%Y %H:%M:%S') if encomenda.horarios['descarregamento'] else None 
+    
     f.write(f"Encomenda {id}\n")
     f.write(f"Origem: {origem}, Destino: {destino}\n")
-    f.write(f"Chegada na origem: {encomenda.horarios['chegada_origem']}\n")
-    f.write(f"Carregada no veiculo {encomenda.id_veiculo} as {encomenda.horarios['carregamento']}\n")
-    f.write(f"Descarregada as {encomenda.horarios['descarregamento']}\n")
+    f.write(f"Chegada na origem: {horario_chegada}\n")
+    f.write(f"Carregada no veiculo {encomenda.id_veiculo} as {horario_carregamento}\n")
+    f.write(f"Descarregada as {horario_descarregamento}\n")
 
 def thread_ponto(id, aguardando_despacho):
   ponto = Ponto(id, aguardando_despacho)
@@ -242,7 +246,7 @@ if __name__ == '__main__':
   S, C, P, A = map(int, sys.argv[1:])
   #S,C,P,A = 5,3,30,10
 
-  if not (P >= 3*A >= 3*C):
+  if not (P >= A >= C):
         print('Erro: Os valores devem satisfazer a relação P >> A >> C.')
         print(f'Valores fornecidos: P={P}, A={A}, C={C}')
         print('Certifique-se de que o número de encomendas (P) seja maior que a capacidade de carga (A),')
@@ -289,6 +293,6 @@ if __name__ == '__main__':
       print("\nEncerrando programa principal.")
   finally:
     programa_ativo = False
-    for thread in threads_encomendas + threads_veiculos + threads_pontos:
-      thread.join()
+    # for thread in threads_encomendas + threads_veiculos + threads_pontos:
+    #   thread.join()
     print("Programa finalizado com sucesso")
