@@ -39,7 +39,7 @@ class Veiculo:
     self.tempo_viagem_atual = 0
 
   def display_info(self):
-    print(f'{self.id:<7} | {self.status:<15} | {self.ponto:<5} | {(str(len(self.encomendas))+'/'+str(self.espacos)):<7} {', '.join(str(encomenda.id) for encomenda in self.encomendas)}')
+    print(f'{self.id:<7} | {self.status:<15} | {(str(self.ponto) + '>' + str((self.ponto + 1) % len(pontos)) if self.status == 'em_transito' else self.ponto):<5} | {(str(len(self.encomendas))+'/'+str(self.espacos)):<7} {', '.join(str(encomenda.id) for encomenda in self.encomendas)}')
 
 
 class Ponto:
@@ -77,36 +77,40 @@ veiculos_em_transito = queue.PriorityQueue() # fila usada para simular ultrapass
 # Monitor
 # #######################
 
+def desenha_monitor():
+  # Limpar a tela (compatível com Windows e Unix)
+  os.system('cls' if os.name == 'nt' else 'clear')
+  
+  print(f"Hora atual: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}")
+  
+  print(f'{'Veículo':<7} | {'Status':<15} | {'Ponto':<5} | {'Carga':<7}')
+  print('---------------------------------------------------------------------')
+  for veiculo in veiculos:
+    veiculo.display_info()
+
+  print()
+
+  print(f'{'Encomenda':<10} | {'O/D':<5} | {'Entregue':<8}')
+  print('---------------------------------------------------------------------')
+  for encomenda in encomendas:
+    encomenda.display_info()
+
+  print()
+
+  print(f'{'Ponto':<5} | {'Aguardando Desp.':<15}')
+  print('---------------------------------------------------------------------')
+  for ponto in pontos:
+    ponto.display_info()
+
+  print("\nPressione Ctrl+C para sair.")
+
 def thread_monitor():
   while programa_ativo:
-    # Limpar a tela (compatível com Windows e Unix)
-    os.system('cls' if os.name == 'nt' else 'clear')
-    
-    print(f"Hora atual: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}")
-    
-    print(f'{'Veículo':<7} | {'Status':<15} | {'Ponto':<5} | {'Carga':<7}')
-    print('---------------------------------------------------------------------')
-    for veiculo in veiculos:
-      veiculo.display_info()
-
-    print()
-
-    print(f'{'Encomenda':<10} | {'O/D':<5} | {'Entregue':<8}')
-    print('---------------------------------------------------------------------')
-    for encomenda in encomendas:
-      encomenda.display_info()
-
-    print()
-
-    print(f'{'Ponto':<5} | {'Aguardando Desp.':<15}')
-    print('---------------------------------------------------------------------')
-    for ponto in pontos:
-      ponto.display_info()
-
-    print("\nPressione Ctrl+C para sair.")
+    desenha_monitor()
     
     # Esperar por um segundo antes de atualizar novamente
     time.sleep(1)
+    
 
 # #######################
 # Lógica
@@ -138,14 +142,10 @@ def thread_veiculo(id, espacos, ponto):
   veiculo = Veiculo(id, espacos, ponto)
   veiculos.append(veiculo)
 
-  while veiculo.status != "Parado" and programa_ativo:
+  while veiculo.status != "parado" and programa_ativo:
 
-    if(entregas_restantes == 0):
-      veiculo.status = "Parado"
-      break
-
-    ponto_atual = pontos[veiculo.ponto - 1] # veiculo chegou no ponto
-
+    # ponto_atual = pontos[veiculo.ponto - 1] # veiculo chegou no ponto
+    ponto_atual = pontos[veiculo.ponto]
     
     ponto_atual.veiculos_aguardando.append(veiculo.id) # veiculo adicionado na fila de veiculos aguardando no ponto
     ponto_atual.ocupado.acquire() # verificacao se nao tem ninguem no ponto
@@ -153,7 +153,8 @@ def thread_veiculo(id, espacos, ponto):
 
     with ponto_atual.lock_ponto: # Se nao tiver ninguem la dentro do ponto, veiculo entra e faz o que precisa
       
-      for encomenda in veiculo.encomendas: # aqui vamos percorrer as encomendas do veiculo e verificar se nao existe alguma a ser entregue naquele ponto
+      # itera sobre uma cópia da lista enquando modifica a original, para evitar erros de iteração
+      for encomenda in veiculo.encomendas[:]: # aqui vamos percorrer as encomendas do veiculo e verificar se nao existe alguma a ser entregue naquele ponto
 
         # verifico se o destino da encomenda eh igual ao ponto em que o veiculo esta
         # tambem verifico se a encomenda ja nao consta como entregue
@@ -166,27 +167,36 @@ def thread_veiculo(id, espacos, ponto):
           veiculo.encomendas.remove(encomenda)
 
       # verifico se existem encomendas nesse ponto que precisam ser despachadas para outro e se tem espaco no veiculo para isso
-      
       if len(ponto_atual.aguardando_despacho) > 0:
-
-        if(len(veiculo.encomendas) < veiculo.espacos):
-          
-          veiculo.status = "carregando"
-          encomenda = encomendas[ponto_atual.aguardando_despacho.pop()]
-          time.sleep(float(encomenda.tempo_descarga))
-          encomenda.horarios["carregamento"] = time.time()
-          veiculo.encomendas.append(encomenda)
+        while(len(ponto_atual.aguardando_despacho) > 0):
+          if(len(veiculo.encomendas) < veiculo.espacos):
+            veiculo.status = "carregando"
+            encomenda = encomendas[ponto_atual.aguardando_despacho.pop(0)] #pop retorna o indice, pois é o que está no aguardando_despacho
+            time.sleep(float(encomenda.tempo_descarga))
+            encomenda.horarios["carregamento"] = time.time()
+            veiculo.encomendas.append(encomenda)
+          else:
+            break
          
 
     ponto_atual.veiculos_aguardando.remove(veiculo.id) # como o veiculo ja entrou e saiu do ponto, portanto pode ser retirado da lista de veiculos do ponto
     ponto_atual.ocupado.release() # sinaliza que o veiculo nao esta mais no ponto
 
+    # Se não existirem mais despachos e o caminhão está vazio, para o caminhão
+    existem_despachos = False
+    for ponto in pontos:
+      if len(ponto.aguardando_despacho) > 0:
+        existem_despachos = True
+        break
+    if not existem_despachos and len(veiculo.encomendas) == 0:
+      veiculo.status = 'parado'
+      break
+
     # Apos o veiculo fazer o que precisava ser feito no ponto, ele se movimenta em direcao ao proximo
     veiculo.status = "em_transito"
+    veiculo.tempo_viagem_atual = random.uniform(0, 10)
     gerenciar_transito(veiculo, veiculo.tempo_viagem_atual)
     veiculo.ponto = (veiculo.ponto + 1) % len(pontos)
-
-    time.sleep(random.uniform(0, 10))
 
  
 
@@ -240,11 +250,10 @@ def thread_ponto(id, aguardando_despacho):
 
 if __name__ == '__main__':
   
-  if len(sys.argv) > 1:
+  if len(sys.argv) < 5:
     print('Erro: Quantidade de argumentos inválida, garanta que está informando os valores de S C P A como argumentos')
     sys.exit(1)
-  #S, C, P, A = map(int, sys.argv[1:])
-  S,C,P,A = 5,3,30,10
+  S, C, P, A = map(int, sys.argv[1:])
 
   if not (P >= A >= C):
         print('Erro: Os valores devem satisfazer a relação P >> A >> C.')
@@ -288,11 +297,10 @@ if __name__ == '__main__':
   # OBS: pelas threads estarem em modo daemon elas só existem enquanto o main existir, por isso esse loop é necessário
   try:
     while entregas_restantes > 0:
-      time.sleep(10)
+      time.sleep(5)
   except KeyboardInterrupt:
       print("\nEncerrando programa principal.")
   finally:
     programa_ativo = False
-    # for thread in threads_encomendas + threads_veiculos + threads_pontos:
-    #   thread.join()
+    desenha_monitor()
     print("Programa finalizado com sucesso")
