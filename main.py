@@ -194,7 +194,7 @@ def thread_veiculo(id, espacos, ponto):
 
     # Apos o veiculo fazer o que precisava ser feito no ponto, ele se movimenta em direcao ao proximo
     veiculo.status = "em_transito"
-    veiculo.tempo_viagem_atual = random.uniform(0, 10)
+    veiculo.tempo_viagem_atual = random.uniform(0, 10) # Gera um tempo de viagem aleatório
     gerenciar_transito(veiculo, veiculo.tempo_viagem_atual)
     veiculo.ponto = (veiculo.ponto + 1) % len(pontos)
 
