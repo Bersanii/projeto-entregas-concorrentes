@@ -186,7 +186,7 @@ def thread_veiculo(id, espacos, ponto):
     gerenciar_transito(veiculo, veiculo.tempo_viagem_atual)
     veiculo.ponto = (veiculo.ponto + 1) % len(pontos)
 
-    #time.sleep(random.uniform(0, 10))
+    time.sleep(random.uniform(0, 10))
 
  
 
@@ -240,11 +240,11 @@ def thread_ponto(id, aguardando_despacho):
 
 if __name__ == '__main__':
   
-  if len(sys.argv) < 5:
+  if len(sys.argv) > 1:
     print('Erro: Quantidade de argumentos inválida, garanta que está informando os valores de S C P A como argumentos')
     sys.exit(1)
-  S, C, P, A = map(int, sys.argv[1:])
-  #S,C,P,A = 5,3,30,10
+  #S, C, P, A = map(int, sys.argv[1:])
+  S,C,P,A = 5,3,30,10
 
   if not (P >= A >= C):
         print('Erro: Os valores devem satisfazer a relação P >> A >> C.')
