@@ -51,12 +51,12 @@ Onde:
 - `A` é a quantidade de espaços de carga por veículo (A ≥ 1)
 
 Importante salientar a implementacao da condicao P >> A >> C, que implica que 
-o número de encomendas precisa ser ligeiramente maior que o número de espaços de carga por veículo
-e o número de espaços por carga precisa ser ligeiramente maior que o número de veículos
+o número de encomendas precisa ser maior que o número de espaços de carga por veículo
+e o número de espaços por carga precisa ser maior que o número de veículos
 
 ### Exemplo de Execução:
 ```bash
-python simulacao.py 5 3 30 10
+python main.py 5 3 30 10
 ```
 
 Este comando irá iniciar a simulação com:
