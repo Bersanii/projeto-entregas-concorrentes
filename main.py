@@ -28,7 +28,7 @@ class Encomenda:
   def display_info(self):
     print(f'{self.id:<10} | {(str(self.origem)+'/'+str(self.destino)):<5} | {('Sim' if self.entregue else 'Não'):<8}')
 
-# Status: esperando | descarregando | em_transito
+# Status: esperando | descarregando | em_transito | carregando | parado
 class Veiculo:
   def __init__(self, id, espacos, ponto, status = 'esperando'):
     self.id = id
@@ -144,7 +144,6 @@ def thread_veiculo(id, espacos, ponto):
 
   while veiculo.status != "parado" and programa_ativo:
 
-    # ponto_atual = pontos[veiculo.ponto - 1] # veiculo chegou no ponto
     ponto_atual = pontos[veiculo.ponto]
     
     ponto_atual.veiculos_aguardando.append(veiculo.id) # veiculo adicionado na fila de veiculos aguardando no ponto
@@ -194,7 +193,7 @@ def thread_veiculo(id, espacos, ponto):
 
     # Apos o veiculo fazer o que precisava ser feito no ponto, ele se movimenta em direcao ao proximo
     veiculo.status = "em_transito"
-    veiculo.tempo_viagem_atual = random.uniform(0, 10) # Gera um tempo de viagem aleatório
+    veiculo.tempo_viagem_atual = random.uniform(0, 3) # Gera um tempo de viagem aleatório
     gerenciar_transito(veiculo, veiculo.tempo_viagem_atual)
     veiculo.ponto = (veiculo.ponto + 1) % len(pontos)
 
